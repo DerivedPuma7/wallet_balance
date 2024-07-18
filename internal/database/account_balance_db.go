@@ -50,7 +50,7 @@ func (a *AccountBalanceDb) Save(balance *entity.AccountBalance) error {
 }
 
 func (a *AccountBalanceDb) Update(balance *entity.AccountBalance) error {
-	sql := "UPDATE balances SET balance = ?, SET updatedAt = ? WHERE id = ?"
+	sql := "UPDATE balances SET balance = ?, updatedAt = ? WHERE id = ?"
   stmt, err := a.DB.Prepare(sql)
   if err != nil {
     return err
