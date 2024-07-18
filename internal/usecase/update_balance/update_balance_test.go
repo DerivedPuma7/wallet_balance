@@ -1,4 +1,4 @@
-package create_balance
+package update_balance
 
 import (
 	"testing"

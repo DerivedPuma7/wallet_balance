@@ -1,4 +1,4 @@
-package create_balance
+package update_balance
 
 import (
 	"github.com.br/derivedpuma7/balance/internal/entity"
