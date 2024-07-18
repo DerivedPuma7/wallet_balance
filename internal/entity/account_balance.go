@@ -11,7 +11,7 @@ type AccountBalance struct {
   ID string
   AccountId string
   Balance float64
-  CreatedAt time.Time
+  UpdatedAt time.Time
 }
 
 func NewAccountBalance(accountId string, balance float64) (*AccountBalance, error) {
