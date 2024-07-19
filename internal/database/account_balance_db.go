@@ -22,14 +22,17 @@ var _ gateway.BalanceGateway = (*AccountBalanceDb)(nil)
 
 func (a *AccountBalanceDb) FindByAccountId(accountId string) (*entity.AccountBalance, error) {
   accountBalance := &entity.AccountBalance{}
-	sql := "SELECT id, accountId, balance, updatedAt FROM balances WHERE accountId = ?"
-  stmt, err := a.DB.Prepare(sql)
+	query := "SELECT id, accountId, balance, updatedAt FROM balances WHERE accountId = ?"
+  stmt, err := a.DB.Prepare(query)
   if err != nil {
 		return nil, err
 	}
 	defer stmt.Close()
   row := stmt.QueryRow(accountId)
   if err := row.Scan(&accountBalance.ID, &accountBalance.AccountId, &accountBalance.Balance, &accountBalance.UpdatedAt); err != nil {
+    if err == sql.ErrNoRows {
+      return nil, nil
+    }
 		return nil, err
 	}
 	return accountBalance, nil
