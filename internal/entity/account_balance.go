@@ -19,6 +19,7 @@ func NewAccountBalance(accountId string, balance float64) (*AccountBalance, erro
     ID: uuid.New().String(),
     AccountId: accountId,
     Balance: balance,
+    UpdatedAt: time.Now(),
   }
   err := newBalance.Validate()
   if err != nil {
