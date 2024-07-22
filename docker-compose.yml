@@ -1,5 +1,4 @@
 version: '3'
-
 services:
   go-balance:
     container_name: wallet-balances
@@ -9,6 +8,8 @@ services:
       - .:/app
     ports:
       - 3003:8080
+    networks:
+      - kafka-network
 
   mysql:
     image: mysql:5.7
@@ -22,3 +23,8 @@ services:
       - 3307:3306
     volumes:
       - .docker/mysql:/var/lib/mysql
+    networks:
+      - kafka-network
+
+networks:
+  kafka-network:
