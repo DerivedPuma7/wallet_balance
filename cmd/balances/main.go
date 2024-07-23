@@ -5,7 +5,10 @@ import (
 	"fmt"
 
 	"github.com.br/derivedpuma7/balance/internal/database"
+	"github.com.br/derivedpuma7/balance/internal/usecase/get_balance_by_account"
 	"github.com.br/derivedpuma7/balance/internal/usecase/update_balance"
+	"github.com.br/derivedpuma7/balance/internal/web"
+	"github.com.br/derivedpuma7/balance/internal/web/webserver"
 	"github.com.br/derivedpuma7/balance/pkg/kafka"
 	ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
 	_ "github.com/go-sql-driver/mysql"
@@ -21,6 +24,12 @@ func main() {
 
   accountBalanceDb := database.NewAccountBalanceDb(db)
   updateBalanceUseCase := update_balance.NewUpdateBalanceUseCase(accountBalanceDb)
+  getBalaceUseCase := get_balance_by_account.NewGetBalanceByAccountUseCase(accountBalanceDb)
+  
+  httpPort := "3003"
+  webserver := webserver.NewWebServer(httpPort)
+  balanceHandler := web.NewWebBalanceHandler(*getBalaceUseCase)
+  webserver.AddHandler("/balances/{account_id}", balanceHandler.Handle)
 
   configMap := ckafka.ConfigMap{
     "bootstrap.servers": "kafka:29092",
@@ -31,6 +40,9 @@ func main() {
   kafkaConsumer := kafka.NewAccountBalanceConsumer(&configMap, kafkaTopics, updateBalanceUseCase)
   channel := make(chan *ckafka.Message)
   kafkaConsumer.Consume(channel)
+
+  fmt.Println("server is running on: http://localhost", httpPort)
+  webserver.Start()
 }
 
 func startDatabase(db *sql.DB) {
