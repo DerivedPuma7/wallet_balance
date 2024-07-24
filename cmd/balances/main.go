@@ -6,11 +6,11 @@ import (
 
 	"github.com.br/derivedpuma7/balance/internal/database"
 	"github.com.br/derivedpuma7/balance/internal/usecase/get_balance_by_account"
-	// "github.com.br/derivedpuma7/balance/internal/usecase/update_balance"
+	"github.com.br/derivedpuma7/balance/internal/usecase/update_balance"
 	"github.com.br/derivedpuma7/balance/internal/web"
 	"github.com.br/derivedpuma7/balance/internal/web/webserver"
-	// "github.com.br/derivedpuma7/balance/pkg/kafka"
-	// ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com.br/derivedpuma7/balance/pkg/kafka"
+	ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -23,7 +23,7 @@ func main() {
   startDatabase(db)
 
   accountBalanceDb := database.NewAccountBalanceDb(db)
-  // updateBalanceUseCase := update_balance.NewUpdateBalanceUseCase(accountBalanceDb)
+  updateBalanceUseCase := update_balance.NewUpdateBalanceUseCase(accountBalanceDb)
   getBalaceUseCase := get_balance_by_account.NewGetBalanceByAccountUseCase(accountBalanceDb)
   
   httpPort := ":3003"
@@ -31,15 +31,19 @@ func main() {
   balanceHandler := web.NewWebBalanceHandler(*getBalaceUseCase)
   webserver.AddHandler("/balances/{account_id}", balanceHandler.Handle)
 
-  // configMap := ckafka.ConfigMap{
-  //   "bootstrap.servers": "kafka:29092",
-  //   "group.id": "wallet",
-  // }
-  // kafkaTopics := []string{"balances"}
+  configMap := ckafka.ConfigMap{
+    "bootstrap.servers": "kafka:29092",
+    "group.id": "wallet",
+    "auto.offset.reset": "earliest",
+  }
+  kafkaTopics := []string{"balances"}
 
-  // kafkaConsumer := kafka.NewAccountBalanceConsumer(&configMap, kafkaTopics, updateBalanceUseCase)
-  // channel := make(chan *ckafka.Message)
-  // kafkaConsumer.Consume(channel)
+  kafkaConsumer := kafka.NewAccountBalanceConsumer(&configMap, kafkaTopics, updateBalanceUseCase)
+  channel := make(chan *ckafka.Message)
+  go kafkaConsumer.Consume(channel)
+  for msg := range channel{
+    fmt.Println(string(msg.Value))
+  }
 
   fmt.Println("server is running on: http://localhost", httpPort)
   webserver.Start()
