@@ -52,10 +52,6 @@ func (c *AccountBalanceConsumer) Consume(msgChan chan *ckafka.Message) error {
     if err != nil {
       panic(err)
     }
-    
-    fmt.Println(`### 3`, err)
-    fmt.Println(`### 6`, string(msg.Value))
-    fmt.Println(`### 7`, accountBalanceUpdateMessage)
 
     updateAccountBalanceFromInput := update_balance.UpdateBalanceInputDto{
       AccountId: accountBalanceUpdateMessage.Payload.AccountIDFrom,
