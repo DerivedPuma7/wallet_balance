@@ -1,6 +1,10 @@
 package get_balance_by_account
 
-import "github.com.br/derivedpuma7/balance/internal/gateway"
+import (
+	"errors"
+
+	"github.com.br/derivedpuma7/balance/internal/gateway"
+)
 
 type GetBalanceByAccountInput struct {
   AccountId string
@@ -25,6 +29,10 @@ func (uc *GetBalanceByAccountUseCase) Execute(input GetBalanceByAccountInput) (*
   if err != nil {
     return nil, err
   }
+  if accountBalance == nil {
+    return nil, errors.New("account does not exist")
+  }
+
   return &GetBalanceByAccountOutput{
     Balance: accountBalance.Balance,
   }, nil
