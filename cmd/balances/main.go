@@ -30,6 +30,8 @@ func main() {
   webserver := webserver.NewWebServer(httpPort)
   balanceHandler := web.NewWebBalanceHandler(*getBalaceUseCase)
   webserver.AddHandler("/balances/{account_id}", balanceHandler.Handle)
+  fmt.Println("server is running on: http://localhost", httpPort)
+  go webserver.Start()
 
   configMap := ckafka.ConfigMap{
     "bootstrap.servers": "kafka:29092",
@@ -45,8 +47,6 @@ func main() {
     fmt.Println(string(msg.Value))
   }
 
-  fmt.Println("server is running on: http://localhost", httpPort)
-  webserver.Start()
 }
 
 func startDatabase(db *sql.DB) {
