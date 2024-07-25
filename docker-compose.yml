@@ -9,7 +9,7 @@ services:
     ports:
       - 3003:3003
     networks:
-      - kafka-network
+      - wallet-network
 
   mysql:
     image: mysql:5.7
@@ -24,8 +24,8 @@ services:
     volumes:
       - .docker/mysql:/var/lib/mysql
     networks:
-      - kafka-network
+      - wallet-network
 
 networks:
-  kafka-network:
-    driver: bridge
+  wallet-network:
+    external: true
